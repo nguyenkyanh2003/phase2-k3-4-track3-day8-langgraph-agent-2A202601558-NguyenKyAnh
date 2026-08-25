@@ -13,8 +13,13 @@ from __future__ import annotations
 
 import os
 
+from dotenv import load_dotenv
+from langchain_core.language_models.chat_models import BaseChatModel
 
-def get_llm(model: str | None = None, temperature: float = 0.0):
+load_dotenv()
+
+
+def get_llm(model: str | None = None, temperature: float = 0.0) -> BaseChatModel:
     """Create an LLM client from environment configuration.
 
     Checks for API keys in this order:
@@ -24,15 +29,20 @@ def get_llm(model: str | None = None, temperature: float = 0.0):
 
     Override model with the `model` parameter or LLM_MODEL env var.
     """
+    request_timeout = float(os.getenv("LLM_TIMEOUT_SECONDS", "30"))
+    max_retries = int(os.getenv("LLM_MAX_RETRIES", "2"))
+
     if os.getenv("GEMINI_API_KEY"):
         try:
             from langchain_google_genai import ChatGoogleGenerativeAI
         except ImportError as exc:
             raise RuntimeError("Install: pip install langchain-google-genai") from exc
         return ChatGoogleGenerativeAI(
-            model=model or os.getenv("LLM_MODEL", "gemini-2.5-flash"),
+            model=model or os.getenv("LLM_MODEL", "gemini-3.6-flash"),
             google_api_key=os.getenv("GEMINI_API_KEY"),
             temperature=temperature,
+            request_timeout=request_timeout,
+            retries=max_retries,
         )
 
     if os.getenv("OPENAI_API_KEY"):
@@ -43,6 +53,8 @@ def get_llm(model: str | None = None, temperature: float = 0.0):
         return ChatOpenAI(
             model=model or os.getenv("LLM_MODEL", "gpt-4o-mini"),
             temperature=temperature,
+            timeout=request_timeout,
+            max_retries=max_retries,
         )
 
     if os.getenv("ANTHROPIC_API_KEY"):
@@ -53,6 +65,8 @@ def get_llm(model: str | None = None, temperature: float = 0.0):
         return ChatAnthropic(
             model=model or os.getenv("LLM_MODEL", "claude-sonnet-4-20250514"),
             temperature=temperature,
+            timeout=request_timeout,
+            max_retries=max_retries,
         )
 
     raise RuntimeError(
