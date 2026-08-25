@@ -190,26 +190,28 @@ Return success only for a complete usable result.
 
 Tool result: {latest_result!r}
 """
-    event_type = "completed"
-    provider_error = ""
-    try:
-        judge = get_llm(temperature=0).with_structured_output(ToolEvaluation)
-        raw_verdict = judge.invoke(prompt)
-        evaluation = ToolEvaluation.model_validate(raw_verdict)
-    except Exception as exc:  # provider/network resilience path
-        verdict = (
-            "needs_retry"
-            if not latest_result or "ERROR" in latest_result.upper()
-            else "success"
-        )
-        evaluation = ToolEvaluation(verdict=verdict, reason="Deterministic evaluation fallback")
-        event_type = "fallback"
-        provider_error = f"{type(exc).__name__}: {exc}"
-
-    # Never allow an LLM judge to turn an explicit tool error into a successful action.
     if not latest_result or "ERROR" in latest_result.upper():
-        evaluation.verdict = "needs_retry"
-        evaluation.reason = "Explicit tool error requires retry"
+        # Fast safety path: an explicit machine error does not need a probabilistic judge.
+        evaluation = ToolEvaluation(
+            verdict="needs_retry",
+            reason="Explicit tool error requires retry",
+        )
+        event_type = "deterministic_safety"
+        provider_error = ""
+    else:
+        event_type = "completed"
+        provider_error = ""
+        try:
+            judge = get_llm(temperature=0).with_structured_output(ToolEvaluation)
+            raw_verdict = judge.invoke(prompt)
+            evaluation = ToolEvaluation.model_validate(raw_verdict)
+        except Exception as exc:  # provider/network resilience path
+            evaluation = ToolEvaluation(
+                verdict="success",
+                reason="Deterministic evaluation fallback",
+            )
+            event_type = "fallback"
+            provider_error = f"{type(exc).__name__}: {exc}"
 
     return {
         "evaluation_result": evaluation.verdict,

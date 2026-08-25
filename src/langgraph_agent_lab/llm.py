@@ -37,10 +37,11 @@ def get_llm(model: str | None = None, temperature: float = 0.0) -> BaseChatModel
             from langchain_google_genai import ChatGoogleGenerativeAI
         except ImportError as exc:
             raise RuntimeError("Install: pip install langchain-google-genai") from exc
+        selected_model = model or os.getenv("LLM_MODEL") or "gemini-3.6-flash"
         return ChatGoogleGenerativeAI(
-            model=model or os.getenv("LLM_MODEL", "gemini-3.6-flash"),
+            model=selected_model,
             google_api_key=os.getenv("GEMINI_API_KEY"),
-            temperature=temperature,
+            temperature=None if selected_model.startswith("gemini-3.6") else temperature,
             request_timeout=request_timeout,
             retries=max_retries,
         )
