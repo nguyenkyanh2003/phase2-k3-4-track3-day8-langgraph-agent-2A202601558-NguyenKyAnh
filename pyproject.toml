@@ -46,5 +46,5 @@ ignore = ["ANN101", "ANN102"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-q --strict-markers"
+addopts = "-q --strict-markers --basetemp=.pytest-tmp"
 testpaths = ["tests"]

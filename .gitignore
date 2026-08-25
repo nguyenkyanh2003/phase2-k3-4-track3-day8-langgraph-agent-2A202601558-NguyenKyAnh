@@ -28,6 +28,7 @@ checkpoints.db-shm
 
 # Testing
 .pytest_cache/
+.pytest-tmp/
 .ruff_cache/
 .mypy_cache/
 htmlcov/
