@@ -18,6 +18,10 @@ def test_initial_state_has_required_fields():
     assert "route" in state
     assert "attempt" in state
     assert "max_attempts" in state
+    assert state["evaluation_result"] == "pending"
+    assert state["pending_question"] is None
+    assert state["proposed_action"] is None
+    assert state["approval"] is None
     assert "messages" in state
     assert "tool_results" in state
     assert "errors" in state

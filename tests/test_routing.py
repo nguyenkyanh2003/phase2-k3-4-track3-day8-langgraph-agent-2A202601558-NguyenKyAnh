@@ -47,6 +47,10 @@ def test_route_after_approval_rejected():
     assert route_after_approval({"approval": {"approved": False}}) == "clarify"
 
 
+def test_route_after_approval_missing_defaults_to_rejected():
+    assert route_after_approval({}) == "clarify"
+
+
 def test_route_after_retry_within_limit():
     assert route_after_retry({"attempt": 0, "max_attempts": 3}) == "tool"
     assert route_after_retry({"attempt": 1, "max_attempts": 3}) == "tool"

@@ -6,6 +6,8 @@ These strings MUST match node names registered in graph.py.
 
 from __future__ import annotations
 
+from typing import Any
+
 from .state import AgentState
 
 
@@ -22,7 +24,14 @@ def route_after_classify(state: AgentState) -> str:
 
     Hint: use a dict mapping for clean implementation.
     """
-    raise NotImplementedError("TODO(student): implement route mapping after classify")
+    route_to_node = {
+        "simple": "answer",
+        "tool": "tool",
+        "missing_info": "clarify",
+        "risky": "risky_action",
+        "error": "retry",
+    }
+    return route_to_node.get(str(state.get("route", "")), "answer")
 
 
 def route_after_evaluate(state: AgentState) -> str:
@@ -34,7 +43,7 @@ def route_after_evaluate(state: AgentState) -> str:
     - If evaluation_result == "needs_retry" → "retry"
     - Otherwise → "answer"
     """
-    raise NotImplementedError("TODO(student): implement evaluate routing for retry loop")
+    return "retry" if state.get("evaluation_result") == "needs_retry" else "answer"
 
 
 def route_after_retry(state: AgentState) -> str:
@@ -45,7 +54,9 @@ def route_after_retry(state: AgentState) -> str:
     - If attempt < max_attempts → "tool" (try again)
     - If attempt >= max_attempts → "dead_letter" (give up, escalate)
     """
-    raise NotImplementedError("TODO(student): implement bounded retry routing")
+    attempt = int(state.get("attempt", 0))
+    max_attempts = int(state.get("max_attempts", 3))
+    return "tool" if attempt < max_attempts else "dead_letter"
 
 
 def route_after_approval(state: AgentState) -> str:
@@ -54,4 +65,9 @@ def route_after_approval(state: AgentState) -> str:
     - If approved → "tool" (proceed with risky action)
     - If rejected → "clarify" (ask user for alternative)
     """
-    raise NotImplementedError("TODO(student): implement approval routing")
+    approval: Any = state.get("approval")
+    if isinstance(approval, dict):
+        approved = bool(approval.get("approved", False))
+    else:
+        approved = bool(getattr(approval, "approved", False))
+    return "tool" if approved else "clarify"
