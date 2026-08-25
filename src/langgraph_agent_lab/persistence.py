@@ -55,8 +55,8 @@ def build_checkpointer(
         if not database_url:
             raise ValueError("database_url is required for the Postgres checkpointer")
         try:
-            from langgraph.checkpoint.postgres import PostgresSaver  # type: ignore[import-not-found]
-            from psycopg import Connection  # type: ignore[import-not-found]
+            from langgraph.checkpoint.postgres import PostgresSaver
+            from psycopg import Connection
         except ImportError as exc:
             raise RuntimeError(
                 "Install PostgreSQL support with: pip install -e '.[postgres]'"
@@ -67,3 +67,11 @@ def build_checkpointer(
         saver.setup()
         return saver
     raise ValueError(f"Unknown checkpointer kind: {kind}")
+
+
+def close_checkpointer(checkpointer: BaseCheckpointSaver | None) -> None:
+    """Close an owned database connection when a saver exposes one."""
+    connection = getattr(checkpointer, "conn", None)
+    close = getattr(connection, "close", None)
+    if callable(close):
+        close()

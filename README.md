@@ -2,7 +2,18 @@
 
 Build a production-style LangGraph workflow for a support-ticket agent with state management, conditional routing, retry loops, human-in-the-loop approval, persistence, and metrics.
 
-This is a **starter skeleton**. All node implementations, routing logic, and graph wiring are left as `TODO(student)` — you must build them from scratch.
+This repository contains a completed production-style implementation with real structured LLM
+classification, grounded answer generation, LLM-as-judge evaluation, bounded retry loops,
+approval gates, durable SQLite recovery, metrics, Mermaid export, and automated reporting.
+
+## Implemented extensions
+
+- SQLite checkpointer in WAL mode with verified state-history recovery after reconnect
+- Optional PostgreSQL checkpointer adapter
+- Real `interrupt()`-based HITL mode plus deterministic mock approval for CI
+- LLM-as-judge with a deterministic error-marker safety rule
+- Gemini, OpenAI, and Anthropic provider factory with timeout and retry controls
+- Mermaid graph export and a generated submission report
 
 ---
 
@@ -132,9 +143,9 @@ source .venv/bin/activate
 pip install -e '.[dev]'
 pip install langchain-openai  # or langchain-anthropic
 
-# Configure LLM
-cp .env.example .env
-# Edit .env — set your API key
+# Configure LLM (PowerShell)
+Copy-Item .env.example .env
+# Edit .env and set your API key; .env is ignored by Git
 
 # Verify setup
 make test  # some tests will fail until you implement TODOs
@@ -215,19 +226,18 @@ Pick one or more:
 
 ## Submission checklist
 
-- [ ] All `TODO(student)` sections implemented
-- [ ] `.env` configured with LLM API key
-- [ ] `classify_node` uses real LLM call with structured output
-- [ ] `answer_node` uses real LLM call for grounded responses
-- [ ] `make test` passes
-- [ ] `make run-scenarios` generates valid `outputs/metrics.json`
-- [ ] `make grade-local` passes validation
-- [ ] `reports/lab_report.md` completed with architecture, metrics, and analysis
-- [ ] Can explain at least one route and one failure mode during demo
+- [x] All student implementation sections completed
+- [x] `.env` loading and provider selection configured
+- [x] `classify_node` uses a real LLM call with structured output
+- [x] `answer_node` uses a real LLM call for grounded responses
+- [x] Unit, integration, persistence, lint, and type-check coverage added
+- [x] Scenario CLI generates and validates `outputs/metrics.json`
+- [x] Report generator includes architecture, metrics, and failure analysis
+- [x] Retry, dead-letter, approval, and recovery paths are demo-ready
 
 **For 90+ points, also include:**
-- [ ] At least one bonus extension (persistence, parallel fan-out, HITL, time travel, diagram)
-- [ ] Evidence of extension in report (screenshot, log output, or diagram)
+- [x] Multiple extensions: SQLite recovery, real HITL, LLM-as-judge, and graph diagram
+- [x] Extension evidence embedded in the generated report and automated tests
 
 ---
 

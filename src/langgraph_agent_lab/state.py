@@ -41,8 +41,8 @@ class ApprovalDecision(BaseModel):
 class AgentState(TypedDict, total=False):
     """LangGraph state.
 
-    TODO(student): decide which fields should be append-only and which should be overwritten.
-    The current annotations give a safe starting point for auditability.
+    Scalar workflow controls use LangGraph's default overwrite semantics. Audit collections
+    use the ``add`` reducer so each node contributes immutable history entries.
     """
 
     thread_id: str

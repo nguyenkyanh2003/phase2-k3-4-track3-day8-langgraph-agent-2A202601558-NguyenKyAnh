@@ -89,12 +89,11 @@ See Phase 5 above.
 
 ## Submission checklist
 
-- [ ] All `TODO(student)` sections implemented
-- [ ] `.env` configured with LLM API key
-- [ ] `make test` passes
-- [ ] `make run-scenarios` writes `outputs/metrics.json`
-- [ ] `make grade-local` validates metrics
-- [ ] `reports/lab_report.md` is completed
-- [ ] `classify_node` uses real LLM call (not keyword-only)
-- [ ] `answer_node` uses real LLM call (not hardcoded)
-- [ ] You can explain one route and one failure mode in demo
+- [x] All student implementation sections completed
+- [x] `.env` loading configured for supported LLM providers
+- [x] Tests, lint, and type checking pass
+- [x] Scenario runner writes and validates `outputs/metrics.json`
+- [x] `reports/lab_report.md` is generated from validated metrics
+- [x] `classify_node` uses structured LLM output
+- [x] `answer_node` uses grounded LLM generation
+- [x] Retry, approval, dead-letter, and recovery paths are documented
